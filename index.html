@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ChiHao ⚡️ Sakura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --pri: #ff6b9d; --bg: #1a0b12; --txt: #fff; --sub: #ffb3c6; --box: rgba(40,15,25,0.75); --br: rgba(255,179,198,0.3); --win: #00ff88; --lose: #ff3333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+        body { background: var(--bg); color: var(--txt); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        .bg { position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,107,157,0.15) 0%, rgba(20,5,10,1) 60%); animation: rot 25s linear infinite; z-index: -1; }
+        @keyframes rot { 100% { transform: rotate(360deg); } }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--pri); color: #fff; padding: 10px 20px; border-radius: 20px; font-weight: 800; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(255,107,157,0.5); }
+        
+        /* SCREEN 1: KEY */
+        #s-key { display: flex; height: 100vh; width: 100%; align-items: center; justify-content: center; padding: 20px; }
+        .key-box { background: var(--box); backdrop-filter: blur(15px); border: 2px solid var(--pri); padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 0 30px rgba(255,107,157,0.3); }
+        .key-box h2 { font-family: 'Orbitron'; color: var(--pri); margin-bottom: 20px; }
+        .key-inp { width: 100%; padding: 15px; background: rgba(0,0,0,0.6); border: 1px solid var(--br); border-radius: 10px; color: #fff; text-align: center; font-weight: 700; margin-bottom: 15px; }
+        .btn-key { width: 100%; padding: 15px; background: var(--pri); color: #fff; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
+
+        /* SCREEN 2: MENU 2x2 */
+        #s-menu { display: none; flex-direction: column; width: 100%; max-width: 500px; height: 100vh; justify-content: center; padding: 20px; }
+        .menu-title { font-family: 'Orbitron'; font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 40px; color: #fff; text-shadow: 0 0 20px rgba(255,107,157,0.5); }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .menu-item { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 2px solid var(--br); border-radius: 25px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); border-color: var(--pri); }
+        .menu-item i { font-size: 3rem; color: var(--pri); margin-bottom: 15px; }
+        .menu-item span { font-weight: 800; font-size: 1.1rem; color: #fff; }
+
+        /* SCREEN 3: SANDBOX */
+        .sandbox { display: none; flex-direction: column; width: 100%; max-width: 500px; padding: 15px; gap: 12px; }
+        .sandbox.active { display: flex; animation: fIn 0.3s; }
+        @keyframes fIn { from { opacity: 0; } to { opacity: 1; } }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+        .btn-back { background: rgba(255,255,255,0.1); border: 1px solid var(--br); color: #fff; padding: 8px 15px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+        .title { font-family: 'Orbitron'; font-size: 1.2rem; color: var(--pri); font-weight: 900; }
+        
+        .grid { background: linear-gradient(180deg, #ffb3c6 0%, #ff6b9d 100%); border-radius: 20px; padding: 10px; border: 2px solid #fff; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; height: 200px; position: relative; }
+        .cell { background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: #fff; }
+        .btn-rst { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.4); border: 1px solid #fff; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer; z-index: 10; }
+
+        .load-box { display: none; flex-direction: column; align-items: center; margin: 5px 0; }
+        .load-bar { width: 250px; height: 25px; background: #fff; border: 2px solid var(--pri); display: flex; padding: 2px; gap: 2px; border-radius: 4px; }
+        .load-block { width: 10%; height: 100%; background: var(--pri); opacity: 0; transition: 0.1s; }
+        .load-text { font-family: 'Orbitron'; font-size: 1rem; font-weight: 900; color: var(--pri); margin-top: 5px; letter-spacing: 5px; }
+
+        .sync-box { display: flex; justify-content: flex-end; margin-bottom: -5px; z-index: 5; }
+        .btn-sync { background: #fff; color: #1a0b12; border: 2px solid var(--pri); padding: 8px 15px; border-radius: 8px; font-weight: 900; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 0 var(--pri); }
+        .btn-sync:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pri); }
+        .btn-sync.on { background: var(--pri); color: #fff; border-color: #fff; box-shadow: 0 4px 0 #fff; }
+
+        .circles { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; display: flex; justify-content: space-around; border: 1px solid var(--br); }
+        .c-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 1.6rem; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.4); transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+        .c-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+        .c-b { background: radial-gradient(circle at 30% 30%, #ff7f8a, #ff4757); }
+        .c-p { background: radial-gradient(circle at 30% 30%, #74b9ff, #3498db); }
+        .c-t { background: radial-gradient(circle at 30% 30%, #55efc4, #00b894); }
+        .c-tai { background: radial-gradient(circle at 30% 30%, #ff7f8a, #ff4757); }
+        .c-xiu { background: radial-gradient(circle at 30% 30%, #ffffff, #b2bec3); color: #000; }
+
+        .result { background: var(--box); backdrop-filter: blur(15px); border: 2px solid var(--pri); border-radius: 20px; padding: 20px; min-height: 140px; display: flex; flex-direction: column; }
+        .phase { font-family: 'Orbitron'; font-size: 1.1rem; font-weight: 900; margin-bottom: 10px; display: flex; gap: 8px; }
+        .phase span { color: var(--pri); }
+        .pred { font-size: 1rem; font-weight: 800; color: var(--sub); margin-bottom: 10px; }
+        .pred strong { font-size: 1.5rem; color: #fff; }
+        .stats { display: flex; gap: 15px; font-size: 0.85rem; font-weight: 700; color: var(--sub); margin-bottom: 10px; }
+        .note { font-size: 0.85rem; font-style: italic; color: #aaa; }
+
+        .hist-box { background: var(--box); border: 1px solid var(--br); border-radius: 15px; padding: 15px; max-height: 150px; overflow-y: auto; margin-top: 10px; }
+        .hist-title { font-weight: 800; font-size: 0.9rem; margin-bottom: 10px; color: var(--pri); text-transform: uppercase; }
+        .hist-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="toast" id="toast">Thông báo</div>
+
+    <!-- KEY GATE -->
+    <div id="s-key">
+        <div class="key-box">
+            <h2>KEY GATE</h2>
+            <input type="text" id="key-inp" class="key-inp" placeholder="Nhập Key...">
+            <button class="btn-key" onclick="App.checkKey()">KÍCH HOẠT</button>
+            <div id="key-err" style="color:var(--lose); font-weight:800; font-size:0.85rem; margin-top:10px; display:none;">Key không hợp lệ!</div>
+        </div>
+    </div>
+
+    <!-- MENU 2x2 -->
+    <div id="s-menu">
+        <div class="menu-title">ChiHao BCR 🔥</div>
+        <div class="menu-grid">
+            <div class="menu-item" onclick="App.open('bcr')"><i class="fas fa-clone"></i><span>Baccarat</span></div>
+            <div class="menu-item" onclick="App.open('tx')"><i class="fas fa-dice"></i><span>Tài Xỉu</span></div>
+            <div class="menu-item" onclick="App.toast('Đang cập nhật')"><i class="fas fa-user-circle"></i><span>Tài Khoản</span></div>
+            <div class="menu-item" onclick="App.toast('Đang cập nhật')"><i class="fas fa-cog"></i><span>Cài Đặt</span></div>
+        </div>
+    </div>
+
+    <!-- SANDBOX BCR -->
+    <div id="sb-bcr" class="sandbox">
+        <div class="top-bar">
+            <button class="btn-back" onclick="App.back()"><i class="fas fa-arrow-left"></i> Menu</button>
+            <div class="title">BACCARAT</div>
+        </div>
+        <div class="grid" id="grid-bcr"><button class="btn-rst" onclick="Game.reset('bcr')">Reset</button></div>
+        <div class="load-box" id="load-bcr"><div class="load-bar" id="bar-bcr"></div><div class="load-text">LOADING</div></div>
+        <div class="sync-box"><button class="btn-sync" id="btn-sync-bcr" onclick="Game.toggleSync('bcr')">Nhập cầu thực tiếp</button></div>
+        <div class="circles">
+            <button class="c-btn c-p" onclick="Game.input('bcr', 'P')">P</button>
+            <button class="c-btn c-t" onclick="Game.input('bcr', 'T')">T</button>
+            <button class="c-btn c-b" onclick="Game.input('bcr', 'B')">B</button>
+        </div>
+        <div class="result">
+            <div class="phase">Phiên <span id="phase-bcr">1</span> : <span id="gap-bcr">Chưa phân tích</span></div>
+            <div class="pred" id="pred-area-bcr" style="display:none;">Dự đoán: <strong id="pred-text-bcr">-</strong></div>
+            <div class="stats" id="stats-bcr" style="display:none;"><div>Tỷ lệ: <span id="rate-bcr">-</span></div><div>Bệt: <span id="streak-bcr">-</span></div><div>Đổi: <span id="swap-bcr">-</span></div></div>
+            <div class="note" id="note-bcr" style="display:none;">Note: <span id="note-txt-bcr">-</span></div>
+        </div>
+        <div class="hist-box">
+            <div class="hist-title">Lịch Sử Phiên</div>
+            <div id="hist-list-bcr"></div>
+        </div>
+    </div>
+
+    <!-- SANDBOX TX -->
+    <div id="sb-tx" class="sandbox">
+        <div class="top-bar">
+            <button class="btn-back" onclick="App.back()"><i class="fas fa-arrow-left"></i> Menu</button>
+            <div class="title">TÀI XỈU</div>
+        </div>
+        <div class="grid" id="grid-tx"><button class="btn-rst" onclick="Game.reset('tx')">Reset</button></div>
+        <div class="load-box" id="load-tx"><div class="load-bar" id="bar-tx"></div><div class="load-text">LOADING</div></div>
+        <div class="sync-box"><button class="btn-sync" id="btn-sync-tx" onclick="Game.toggleSync('tx')">Nhập cầu thực tiếp</button></div>
+        <div class="circles" style="justify-content: center; gap: 20px;">
+            <button class="c-btn c-xiu" onclick="Game.input('tx', 'X')">X</button>
+            <button class="c-btn c-tai" onclick="Game.input('tx', 'T')">T</button>
+        </div>
+        <div class="result">
+            <div class="phase">Phiên <span id="phase-tx">1</span> : <span id="gap-tx">Chưa phân tích</span></div>
+            <div class="pred" id="pred-area-tx" style="display:none;">Dự đoán: <strong id="pred-text-tx">-</strong></div>
+            <div class="stats" id="stats-tx" style="display:none;"><div>Tỷ lệ: <span id="rate-tx">-</span></div><div>Bệt: <span id="streak-tx">-</span></div><div>Đổi: <span id="swap-tx">-</span></div></div>
+            <div class="note" id="note-tx" style="display:none;">Note: <span id="note-txt-tx">-</span></div>
+        </div>
+        <div class="hist-box">
+            <div class="hist-title">Lịch Sử Phiên</div>
+            <div id="hist-list-tx"></div>
+        </div>
+    </div>
+
+    <script>
+        const App = {
+            keys: ["ChiHaoBCR", "HaoCuTe8386"],
+            checkKey: () => {
+                let k = document.getElementById('key-inp').value.trim();
+                if(App.keys.includes(k)) {
+                    document.getElementById('s-key').style.display = 'none';
+                    document.getElementById('s-menu').style.display = 'flex';
+                } else {
+                    document.getElementById('key-err').style.display = 'block';
+                }
+            },
+            open: (t) => {
+                document.getElementById('s-menu').style.display = 'none';
+                document.getElementById('sb-' + t).classList.add('active');
+                Game.init(t);
+            },
+            back: () => {
+                document.querySelectorAll('.sandbox').forEach(el => el.classList.remove('active'));
+                document.getElementById('s-menu').style.display = 'flex';
+            },
+            toast: (m) => {
+                let t = document.getElementById('toast');
+                t.innerText = m; t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 2000);
+            }
+        };
+
+        const Game = {
+            state: {
+                bcr: { hist: [], phase: 1, gap: 1, pred: null, sync: false, load: false, sessions: [] },
+                tx:  { hist: [], phase: 1, gap: 1, pred: null, sync: false, load: false, sessions: [] }
+            },
+            init: (t) => {
+                let g = document.getElementById('grid-' + t);
+                g.innerHTML = '<button class="btn-rst" onclick="Game.reset(\''+t+'\')">Reset</button>';
+                for(let i=0; i<30; i++) { let c=document.createElement('div'); c.className='cell'; g.appendChild(c); }
+                Game.drawGrid(t);
+                Game.drawHist(t);
+            },
+            toggleSync: (t) => {
+                let s = Game.state[t];
+                if(!s.pred) return App.toast("Chưa có dự đoán!");
+                s.sync = !s.sync;
+                let btn = document.getElementById('btn-sync-' + t);
+                let pa = document.getElementById('pred-area-' + t);
+                let st = document.getElementById('stats-' + t);
+                let nt = document.getElementById('note-' + t);
+                if(s.sync) {
+                    btn.innerText = "Huỷ nhập thực"; btn.classList.add('on');
+                    pa.style.display='none'; st.style.display='none'; nt.style.display='none';
+                    App.toast("Chọn kết quả thực tế");
+                } else {
+                    btn.innerText = "Nhập cầu thực tiếp"; btn.classList.remove('on');
+                    pa.style.display='block'; st.style.display='flex'; nt.style.display='block';
+                }
+            },
+            input: (t, v) => {
+                let s = Game.state[t];
+                if(s.load) return;
+                if(s.sync) {
+                    let win = (v === s.pred);
+                    if(win) {
+                        document.getElementById('gap-'+t).innerHTML = `<span style="color:var(--win)">Gấp ${s.gap} ✅</span>`;
+                        App.toast("🎉 CHÍNH XÁC! Về Gấp 1.");
+                        s.sessions.unshift({ phase: s.phase, gap: s.gap, status: "Thắng" });
+                        s.gap = 1;
+                    } else {
+                        document.getElementById('gap-'+t).innerHTML = `<span style="color:var(--lose)">Gấp ${s.gap} ❌</span>`;
+                        s.sessions.unshift({ phase: s.phase, gap: s.gap, status: "Thua" });
+                        if(s.gap < 3) { s.gap++; App.toast(`❌ SAI! Lên Gấp ${s.gap}`); }
+                        else { App.toast("❌ SAI GẤP 3! Cut Loss, reset Gấp 1."); s.gap = 1; }
+                    }
+                    s.hist.push(v); if(s.hist.length > 10) s.hist.shift();
+                    Game.drawGrid(t); Game.drawHist(t);
+                    s.pred = null; s.phase++; s.sync = false;
+                    document.getElementById('btn-sync-'+t).innerText = "Nhập cầu thực tiếp";
+                    document.getElementById('btn-sync-'+t).classList.remove('on');
+                    document.getElementById('pred-area-'+t).style.display='none';
+                    document.getElementById('stats-'+t).style.display='none';
+                    document.getElementById('note-'+t).style.display='none';
+                    document.getElementById('phase-'+t).innerText = s.phase;
+                    document.getElementById('gap-'+t).innerText = "Chưa phân tích";
+                } else {
+                    if(s.hist.length >= 10) return App.toast("Đủ 10 cầu, hãy đồng bộ!");
+                    s.hist.push(v); Game.drawGrid(t);
+                    if(s.hist.length === 10) Game.analyze(t);
+                }
+            },
+            analyze: (t) => {
+                let s = Game.state[t]; s.load = true;
+                document.getElementById('load-'+t).style.display = 'flex';
+                let bar = document.getElementById('bar-'+t); bar.innerHTML = '';
+                for(let i=0; i<10; i++) { let b=document.createElement('div'); b.className='load-block'; bar.appendChild(b); }
+                let count = 0; let blocks = bar.querySelectorAll('.load-block');
+                let intv = setInterval(() => {
+                    if(count < 10) { blocks[count].style.opacity = '1'; count++; }
+                    else { clearInterval(intv); document.getElementById('load-'+t).style.display='none'; s.load=false; Game.showRes(t); }
+                }, 300);
+            },
+            showRes: (t) => {
+                let s = Game.state[t]; let h = s.hist; let isB = (t==='bcr');
+                let main = isB ? 'B' : 'T'; let sec = isB ? 'P' : 'X';
+                let cM = h.filter(x=>x===main).length; let cS = h.filter(x=>x===sec).length;
+                let strk = 1, swp = 0;
+                for(let i=h.length-1; i>0; i--) { if(h[i]===h[i-1]) strk++; else break; }
+                for(let i=1; i<h.length; i++) { if(h[i]!==h[i-1]) swp++; }
+                
+                let pred = main; let rs = ""; let rate = 50;
+                if(strk >= 4) { pred = h[h.length-1]; rs = `Bệt ${strk} ván. Bám cầu.`; rate = 60 + strk*5; }
+                else if(swp >= 7) { pred = h[h.length-1]===main ? sec : main; rs = `Đảo liên tục. Bẻ cầu.`; rate = 55 + swp*3; }
+                else if(Math.abs(cM-cS) >= 4) { pred = cM > cS ? sec : main; rs = `Lệch lớn. Cân bằng.`; rate = 65 + Math.abs(cM-cS)*5; }
+                else { pred = cM >= cS ? main : sec; rs = `Không dị thường. Đánh số đông.`; rate = 51 + Math.abs(cM-cS)*2; }
+                if(rate > 95) rate = 95; s.pred = pred;
+
+                document.getElementById('pred-area-'+t).style.display='block';
+                document.getElementById('pred-text-'+t).innerText = pred;
+                document.getElementById('pred-text-'+t).style.color = (pred==='B'||pred==='T') ? '#ff4757' : '#3498db';
+
+                document.getElementById('stats-'+t).style.display='flex';
+                document.getElementById('rate-'+t).innerText = rate + '%';
+                document.getElementById('streak-'+t).innerText = strk;
+                document.getElementById('swap-'+t).innerText = swp;
+
+                document.getElementById('note-'+t).style.display='block';
+                document.getElementById('note-txt-'+t).innerText = rs;
+                document.getElementById('gap-'+t).innerHTML = `<span style="color:#fff">Gấp ${s.gap} (Chờ thực tế)</span>`;
+            },
+            drawGrid: (t) => {
+                let s = Game.state[t]; let cells = document.querySelectorAll(`#grid-${t} .cell`);
+                cells.forEach(c => { c.style.background = 'rgba(0,0,0,0.1)'; c.innerText = ''; });
+                s.hist.forEach((v, i) => {
+                    if(i < cells.length) { cells[i].style.background = 'rgba(0,0,0,0.5)'; cells[i].innerText = v; cells[i].style.color = '#fff'; }
+                });
+            },
+            drawHist: (t) => {
+                let s = Game.state[t]; let list = document.getElementById('hist-list-'+t); list.innerHTML = '';
+                if(s.sessions.length === 0) return list.innerHTML = '<div style="text-align:center; font-size:0.8rem; color:#888;">Chưa có lịch sử.</div>';
+                s.sessions.forEach(item => {
+                    let d = document.createElement('div'); d.className = 'hist-item';
+                    let cls = item.status === 'Thắng' ? 'style="color:var(--win)"' : 'style="color:var(--lose)"';
+                    d.innerHTML = `<span>Phiên ${item.phase} (Gấp ${item.gap})</span><span ${cls}>${item.status}</span>`;
+                    list.appendChild(d);
+                });
+            },
+            reset: (t) => {
+                if(confirm("Xóa toàn bộ cầu và lịch sử?")) {
+                    Game.state[t] = { hist: [], phase: 1, gap: 1, pred: null, sync: false, load: false, sessions: [] };
+                    Game.init(t);
+                    document.getElementById('phase-'+t).innerText = 1;
+                    document.getElementById('gap-'+t).innerText = "Chưa phân tích";
+                    document.getElementById('pred-area-'+t).style.display='none';
+                    document.getElementById('stats-'+t).style.display='none';
+                    document.getElementById('note-'+t).style.display='none';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
